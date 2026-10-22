@@ -1,0 +1,102 @@
+---
+title: Liora project - investisseur starter pack (architecture modèle, crypto, hébergement gratuit)
+---
+flowchart TB
+
+  subgraph REG["REGISTRE DES PAIRS - 6 paires, fichier de config unique"]
+    direction LR
+    R1["Bitcoin<br/>BTCUSDT · BTCEUR"]
+    R2["Ethereum<br/>ETHUSDT · ETHEUR"]
+    R3["Solana<br/>SOLUSDT · SOLEUR"]
+  end
+
+  subgraph SRC["1 - SOURCE - données journalières"]
+    S1["API publique Binance<br/>sans clé, sans compte<br/>klines pour l'historique · ticker pour le live"]
+  end
+
+  subgraph ING["2 - INGESTION - Python, Cloud Run Job"]
+    direction LR
+    I1["Un appel par paire<br/>retries + backoff, gestion des erreurs 429"]
+    I2["Réponse brute conservée<br/>alerte si une paire manque"]
+  end
+
+  SCHED{{"DÉCLENCHEMENT - Cloud Scheduler<br/>1 fois par jour<br/>ingestion → dbt → modèle ML → LLM"}}
+
+  subgraph RAW["3 - BIGQUERY RAW - région EU"]
+    direction LR
+    T1[("klines_raw<br/>paire · date · payload JSON")]
+    T2[("live_prices<br/>optionnel")]
+  end
+
+  subgraph DBT["4 - DBT dans BigQuery - SQL"]
+    direction LR
+    D1["Staging<br/>typage, déduplication, bougies clôturées"]
+    D2["Métriques<br/>moyennes mobiles 7j/30j<br/>volatilité 7j/30j · variations"]
+    D3["Corrélations<br/>sur rendements, par devise de cotation"]
+    D4["Tests de qualité<br/>unicité · non-nul · fraîcheur"]
+  end
+
+  subgraph ML["5 - ANALYSE - ML puis LLM"]
+    direction LR
+    M1["Modèle statistique ou ML<br/>volatilité prévue · régime de marché"]
+    M2["LLM - API Gemini niveau gratuit<br/>explication en langage simple<br/>à partir des indicateurs calculés"]
+  end
+
+  subgraph MART["6 - BIGQUERY MART"]
+    direction LR
+    K1[("mart_pair_metrics")]
+    K2[("mart_correlations")]
+    K3[("mart_insights<br/>signaux + texte")]
+  end
+
+  subgraph API["7 - API FASTAPI - Cloud Run, cache quotidien"]
+    direction LR
+    A1["GET /pairs"]
+    A2["GET /overview"]
+    A3["GET /pairs/symbol/history"]
+    A4["GET /correlations"]
+    A5["GET /pairs/symbol/insight"]
+  end
+
+  subgraph UI["8 - VISUELS"]
+    direction LR
+    U1["Application Android<br/>Kotlin · Retrofit"]
+    U2["Dashboard web"]
+  end
+
+  subgraph VIZ["Visuels proposés"]
+    direction LR
+    V1["Cartes par crypto<br/>prix EUR et USDT · variation · mini-courbe"]
+    V2["Courbe ou chandeliers<br/>moyennes mobiles · volume"]
+    V3["Performance comparée<br/>base 100"]
+    V4["Carte de chaleur<br/>des corrélations"]
+    V5["Jauge de risque<br/>et fiche d'analyse"]
+  end
+
+  subgraph HOST["HÉBERGEMENT - niveau gratuit Google Cloud"]
+    direction LR
+    H1["Cloud Run : API + jobs<br/>BigQuery : stockage et SQL<br/>Docker Compose en local seulement"]
+    H2["Alerte de budget obligatoire<br/>carte bancaire requise<br/>après 90 jours : compte payant à activer"]
+  end
+
+  subgraph GUARD["GARDE-FOUS COÛT ET CONFORMITÉ"]
+    direction LR
+    G1["Données journalières seulement<br/>6 paires, quelques Mo"]
+    G2["Chargement par lots + MERGE<br/>pas de doublons, pas de streaming"]
+    G3["Cache API<br/>quotas gratuits protégés"]
+    G4["Information éducative<br/>pas de conseil d'investissement"]
+  end
+
+  REG --> SRC
+  SRC --> ING
+  SCHED -.->|déclenche chaque étape| ING
+  ING --> RAW
+  RAW --> DBT
+  DBT --> ML
+  ML --> MART
+  DBT --> MART
+  MART --> API
+  API --> UI
+  UI --> VIZ
+  VIZ ~~~ HOST
+  HOST ~~~ GUARD
