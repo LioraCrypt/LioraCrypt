@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# LioraCrypt : fichiers bruts produits localement par fetch_crypto.py
+data/
+
+# macOS
+.DS_Store
