@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: stg_binance__klines
+    description: >
+      Une ligne par bougie journalière CLÔTURÉE et par paire (6 paires Binance).
+      Dépliée depuis raw.klines_raw, typée, dédoublonnée sur (symbol, open_time) en gardant
+      l'exécution la plus récente (requested_at puis loaded_at). Vue : aucun stockage.
+    columns:
+      - name: symbol
+        description: "Paire Binance, ex. BTCUSDT"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [BTCUSDT, BTCEUR, ETHUSDT, ETHEUR, SOLUSDT, SOLEUR]
+      - name: kline_interval
+        description: "Intervalle des bougies (périmètre : 1d uniquement)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['1d']
+      - name: open_time
+        description: "Ouverture de la bougie (UTC)"
+        data_tests: [not_null]
+      - name: close_time
+        description: "Clôture de la bougie (UTC), toujours dans le passé"
+        data_tests: [not_null]
+      - name: open_price
+        description: "Prix d'ouverture (devise de cotation : USDT ou EUR)"
+        data_tests: [not_null]
+      - name: high_price
+        description: "Plus haut de la journée"
+        data_tests: [not_null]
+      - name: low_price
+        description: "Plus bas de la journée"
+        data_tests: [not_null]
+      - name: close_price
+        description: "Prix de clôture"
+        data_tests: [not_null]
+      - name: base_volume
+        description: "Volume échangé en actif de base (BTC, ETH, SOL)"
+        data_tests: [not_null]
+      - name: quote_volume
+        description: "Volume échangé en devise de cotation"
+      - name: number_of_trades
+        description: "Nombre de transactions"
+      - name: taker_buy_base_volume
+        description: "Volume acheté par les preneurs (actif de base)"
+      - name: taker_buy_quote_volume
+        description: "Volume acheté par les preneurs (devise de cotation)"
+      - name: run_id
+        description: "Fichier d'ingestion d'où vient la bougie retenue"
+        data_tests: [not_null]
+      - name: requested_at
+        description: "Date de l'appel à l'API Binance"
+        data_tests: [not_null]
+      - name: loaded_at
+        description: "Date de chargement dans BigQuery (utilisée par le mart et l'API)"
+        data_tests: [not_null]

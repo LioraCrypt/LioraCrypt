@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: binance
+    description: "Couche RAW chargée par load/load_raw.py (ajout seul, une ligne par paire et par exécution)."
+    database: lioracrypt
+    schema: raw
+    config:
+      loaded_at_field: loaded_at
+      freshness:
+        warn_after: {count: 26, period: hour}
+        error_after: {count: 50, period: hour}
+    tables:
+      - name: klines_raw
+        description: "Réponses brutes Binance /klines ; payload = texte JSON d'un tableau de bougies."
+        columns:
+          - name: run_id
+            data_tests: [not_null]
+          - name: symbol
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [BTCUSDT, BTCEUR, ETHUSDT, ETHEUR, SOLUSDT, SOLEUR]
+          - name: payload
+            data_tests: [not_null]

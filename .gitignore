@@ -224,3 +224,10 @@ data/
 
 # macOS
 .DS_Store
+
+# dbt
+dbt_packages/
+logs/
+
+# Suivi de projet local (non partagé)
+ETAPES.md
