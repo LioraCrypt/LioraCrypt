@@ -8,6 +8,6 @@ echo "Loading data into BigQuery"
 python load/load_raw.py data/raw/*.jsonl --project lioracrypt
 
 echo "Running dbt"
-dbt build --project-dir dbt
+dbt build --project-dir dbt --profiles-dir dbt
 
 echo "Execution completed"

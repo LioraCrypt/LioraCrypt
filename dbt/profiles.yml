@@ -1,0 +1,10 @@
+lioracrypt:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: lioracrypt
+      dataset: dbt_dev
+      location: EU
+      threads: 2
