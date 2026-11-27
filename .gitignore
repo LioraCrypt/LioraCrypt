@@ -218,3 +218,16 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# LioraCrypt : fichiers bruts produits localement par fetch_crypto.py
+data/
+
+# macOS
+.DS_Store
+
+# dbt
+dbt_packages/
+logs/
+
+# Suivi de projet local (non partagé)
+ETAPES.md
