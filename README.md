@@ -46,3 +46,39 @@ L'exécution locale nécessite une authentification Google Cloud ainsi qu'une co
 - **Cloud Logging** : consultation des logs et suivi des erreurs.
 - **BigQuery** : stockage et traitement des données.
 
+
+## Exécution du pipeline avec Docker
+
+### 1. Prérequis
+
+- Docker Desktop
+- Google Cloud CLI
+- Accès au projet GCP `lioracrypt`
+
+### 2. Authentification Google Cloud
+
+```cmd
+gcloud auth application-default login
+```
+
+### 3. Construction de l'image Docker
+
+Depuis la racine du projet :
+
+```cmd
+docker build -t lioracrypt-test .
+```
+
+### 4. Exécution du conteneur (Windows CMD)
+
+```cmd
+docker run --rm -v "%APPDATA%\gcloud:/credentials:ro" -e GOOGLE_APPLICATION_CREDENTIALS=/credentials/application_default_credentials.json lioracrypt-test
+```
+
+Le conteneur exécute automatiquement le script `run.sh` :
+
+- Récupération des données Binance.
+- Chargement des données dans BigQuery.
+- Transformation et tests avec dbt.
+
+Les identifiants Google Cloud sont montés en lecture seule et ne sont pas intégrés à l'image Docker.

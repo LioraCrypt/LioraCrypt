@@ -4,7 +4,7 @@
 __pycache__/
 *.pyc
 .venv/
-data/
 **/logs/
 **/target/
 **/dbt_packages/
+data/raw
