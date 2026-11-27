@@ -5,9 +5,9 @@ WORKDIR /app
 COPY . .
 
 RUN pip install --no-cache-dir \
-    -r fetch/requirements.txt \
-    -r load/requirements.txt \
-    -r dbt/requirements.txt
+    -r data/fetch/requirements.txt \
+    -r data/load/requirements.txt \
+    -r data/dbt/requirements.txt
 
 ENV BINANCE_BASE_URL=https://data-api.binance.vision
 
